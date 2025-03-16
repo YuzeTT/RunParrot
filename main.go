@@ -8,10 +8,12 @@ import (
 	"os/signal"
 	"path/filepath"
 	"runtime"
+	"strconv"
 	"syscall"
 	"time"
 
 	"github.com/getlantern/systray"
+	"github.com/gin-gonic/gin"
 	"github.com/shirou/gopsutil/cpu"
 )
 
@@ -20,6 +22,9 @@ var iconPaths []string
 
 // 当前 CPU 使用率
 var cpuUsage float64
+
+// 自定义速度配置
+var customSpeed float64
 
 // 加载图标文件
 func loadIcon(path string) []byte {
@@ -97,6 +102,7 @@ func onReady() {
 	systray.SetTooltip("请等待第一次扫描")
 
 	// 创建退出菜单
+	mOpenConfig := systray.AddMenuItem("配置我的鸟", "打开配置页面")
 	mOpenTaskMgr := systray.AddMenuItem("任务管理器", "打开任务管理器")
 	mQuit := systray.AddMenuItem("退下吧", "退出应用程序")
 
@@ -109,6 +115,13 @@ func onReady() {
 		// 打开任务管理器
 		if err := openTaskManager(); err != nil {
 			log.Printf("Failed to open task manager: %v", err)
+		}
+	}()
+
+	go func() {
+		<-mOpenConfig.ClickedCh
+		if err := openBrowser("http://localhost:8080/config"); err != nil {
+			log.Printf("Failed to open config page: %v", err)
 		}
 	}()
 
@@ -163,9 +176,52 @@ func openTaskManager() error {
 	return cmd.Start()
 }
 
+func openBrowser(url string) error {
+	var cmd string
+	var args []string
+	switch runtime.GOOS {
+	case "windows":
+		cmd = "cmd"
+		args = []string{"/c", "start", url}
+	case "darwin":
+		cmd = "open"
+		args = []string{url}
+	default:
+		return fmt.Errorf("[-] 不支持的操作系统: %s", runtime.GOOS)
+	}
+	return exec.Command(cmd, args...).Start()
+}
+
 func main() {
 	// 读取图标文件
 	readIconFiles()
+	// 启动 Gin 服务器
+	r := gin.Default()
+	r.Static("/static", "./static")
+	r.LoadHTMLGlob("templates/*")
+
+	r.GET("/config", func(c *gin.Context) {
+		c.HTML(200, "config.html", gin.H{
+			"CustomSpeed": customSpeed,
+		})
+	})
+
+	r.POST("/config", func(c *gin.Context) {
+		speedStr := c.PostForm("speed")
+		speed, err := strconv.ParseFloat(speedStr, 64)
+		if err != nil {
+			c.JSON(400, gin.H{"error": "无效的速度值"})
+			return
+		}
+		customSpeed = speed
+		c.Redirect(302, "/config")
+	})
+
+	go func() {
+		if err := r.Run(":8080"); err != nil {
+			log.Fatalf("Failed to start web server: %v", err)
+		}
+	}()
 
 	// 处理系统信号，确保程序可以正常退出
 	c := make(chan os.Signal, 1)

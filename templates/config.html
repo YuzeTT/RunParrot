@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>配置我的鸟</title>
+
+    <link href="https://unpkg.com/nes.css@2.3.0/css/nes.min.css" rel="stylesheet" />
+
+    <style>
+        /* 定义自定义字体 */
+        @font-face {
+            /* 自定义字体的名称，后续可在 CSS 中使用该名称引用该字体 */
+            font-family: 'CustomFont';
+            /* 指向 WOFF 字体文件的路径，可根据实际情况修改 */
+            src: url('/static/fonts/zpix.woff2') format('woff');
+            /* 设置字体的粗细，可根据字体文件的实际情况调整 */
+            font-weight: normal;
+            /* 设置字体的样式，可根据字体文件的实际情况调整 */
+            font-style: normal;
+        }
+
+        /* 将自定义字体应用到页面元素 */
+        body {
+            /* 使用前面定义的自定义字体名称 */
+            font-family: 'CustomFont', sans-serif;
+
+            /* background-color: #209cee; */
+            /* color: white; */
+        }
+
+
+
+        * {
+            border-image-repeat: stretch !important;
+
+            @media all and (-webkit-min-device-pixel-ratio: 0) and (min-resolution: 0.001dpcm) {
+                border-image-repeat: stretch !important;
+            }
+
+            @supports (-moz-appearance: meterbar) {
+                border-image-repeat: stretch !important;
+            }
+        }
+
+        .nes-container.with-title>.title {
+            margin: -2.3rem 0 1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div style="max-width: 400px;margin: 30px auto;">
+        <div style="display: flex;align-items: center; margin-bottom: 30px;">
+            <h2>配置我的鸟</h2>
+            <div style="flex: 1"></div>
+            <div>
+                <button type="button" class="nes-btn is-error is-dark">重置</button>
+            </div>
+        </div>
+
+        <div style="display: flex;align-items: center;margin: 30px auto;">
+            <h3>开机自启动</h3>
+            <div style="flex: 1"></div>
+            <div>
+                <label>
+                    <input type="radio" class="nes-radio " name="answer" checked />
+                    <span>Yes</span>
+                </label>
+
+                <label>
+                    <input type="radio" class="nes-radio " name="answer" />
+                    <span>No</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="nes-container with-title">
+            <p class="title">样式切换</p>
+            <div style="display: flex;justify-content: space-between;margin: 10px auto;text-align: center;">
+                <div>
+                    <img src="/static/images/ColorParrot.gif" alt="1" width="50">
+                    <br>
+                    <button type="button" class="nes-btn is-primary" style="margin: 10px auto;">使用中</button>
+                </div>
+                <div>
+
+                    <img src="/static/images/MoneyParrot.gif" alt="1" width="50">
+                    <br>
+                    <button type="button" class="nes-btn" style="margin: 10px auto;">使用</button>
+                </div>
+                <div>
+
+                    <img src="/static/images/MusicParrot.gif" alt="1" width="50">
+                    <br>
+                    <button type="button" class="nes-btn" style="margin: 10px auto;">使用</button>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+    <h1>速度配置</h1>
+    <form method="post">
+        <label for="speed">动画间隔时间 (毫秒):</label>
+        <input type="number" id="speed" name="speed" value="{{.CustomSpeed}}">
+        <button type="submit">保存</button>
+    </form>
+
+</body>
+
+</html>
