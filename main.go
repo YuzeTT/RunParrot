@@ -104,6 +104,11 @@ func onReady() {
             case <-cpuTicker.C:
                 // 获取 CPU 使用率
                 cpuUsage = getCPUUsage()
+
+				// cpu大于99.5直接显示100
+				if cpuUsage >= 99.5 {
+					cpuUsage = 100
+				}
                 systray.SetTooltip(fmt.Sprintf("CPU 使用率: %.1f%%", cpuUsage))
                 // 根据新的 CPU 使用率调整动画间隔
                 animationTicker.Reset(calculateAnimationInterval())
